@@ -3,10 +3,24 @@ import pymysql
 import os
 import bcrypt
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
+
+import boto3, json
+
+def get_secrets():
+    client = boto3.client('secretsmanager', region_name='ap-south-1')
+    response = client.get_secret_value(SecretId='flask-library/prod')
+    return json.loads(response['SecretString'])
+
+secrets = get_secrets()
+db_host = secrets['DB_HOST']
+db_user = secrets['DB_USER']
+db_password = secrets['DB_PASSWORD']
+db_name = secrets['DB_NAME']
+app.secret_key = secrets['SECRET_KEY']
 
 # Load environment variables from appsettings.env
-load_dotenv("appsettings.env")
+#load_dotenv("appsettings.env")
 
 # Environment check
 Code_Env = os.getenv('Environment', '1')  # Defaults to '1' if not set
